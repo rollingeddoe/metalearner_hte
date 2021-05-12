@@ -1,3 +1,12 @@
+import logging
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+from scipy.stats import norm
+
+
+def rmse(y_hat,y):
+    return np.sqrt(np.mean((y_hat-y)**2))
 
 class Slearner():
     
