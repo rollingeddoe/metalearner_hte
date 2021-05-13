@@ -183,7 +183,7 @@ class Xlearner():
         self.alpha = alpha
         self.propensity = None
         self.propensity_model = propensity_model
-
+        self.is_regressor = is_regressor
     
     def fit(self, X, treatment, y, p=None):
         """Fit the inference model.
@@ -196,27 +196,27 @@ class Xlearner():
                 float (0,1)
         """
         # Train outcome models
-        self.models_mu_c.fit(X[treatment == 0], y[treatment == 0])
-        self.models_mu_t.fit(X[treatment == 1], y[treatment == 1])
+        self.model_mu_c.fit(X[treatment == 0], y[treatment == 0])
+        self.model_mu_t.fit(X[treatment == 1], y[treatment == 1])
 
         # Calculate variances and treatment effects
         if self.is_regressor:
-            var_c = (y[treatment == 0] - self.models_mu_c.predict(X[treatment == 0])).var()
-            var_t = (y[treatment == 1] - self.models_mu_t.predict(X[treatment == 1])).var()
-            d_c = self.models_mu_t.predict(X[treatment == 0]) - y[treatment == 0]
-            d_t = y[treatment == 1] - self.models_mu_c.predict(X[treatment == 1])
+            var_c = (y[treatment == 0] - self.model_mu_c.predict(X[treatment == 0])).var()
+            var_t = (y[treatment == 1] - self.model_mu_t.predict(X[treatment == 1])).var()
+            d_c = self.model_mu_t.predict(X[treatment == 0]) - y[treatment == 0]
+            d_t = y[treatment == 1] - self.model_mu_c.predict(X[treatment == 1])
         else:
-            var_c = (y[treatment == 0] - self.models_mu_c.predict_proba(X[treatment == 0])[:,1]).var()
-            var_t = (y[treatment == 1] - self.models_mu_t.predict_proba(X[treatment == 1])[:,1]).var()
-            d_c = self.models_mu_t.predict_proba(X[treatment == 0])[:,1] - y[treatment == 0]
-            d_t = y[treatment == 1] - self.models_mu_c.predict_proba(X[treatment == 1])[:,1]
+            var_c = (y[treatment == 0] - self.model_mu_c.predict_proba(X[treatment == 0])[:,1]).var()
+            var_t = (y[treatment == 1] - self.model_mu_t.predict_proba(X[treatment == 1])[:,1]).var()
+            d_c = self.model_mu_t.predict_proba(X[treatment == 0])[:,1] - y[treatment == 0]
+            d_t = y[treatment == 1] - self.model_mu_c.predict_proba(X[treatment == 1])[:,1]
         
         self.vars_c= var_c
         self.vars_t = var_t
 
         # Train treatment models
-        self.models_tau_c.fit(X[treatment == 0], d_c)
-        self.models_tau_t.fit(X[treatment == 1], d_t)
+        self.model_tau_c.fit(X[treatment == 0], d_c)
+        self.model_tau_t.fit(X[treatment == 1], d_t)
     
 
     def get_propensity(self,X,treatment):
@@ -233,7 +233,7 @@ class Xlearner():
             treatment:(np.array or pd.Series) indicating treatment/control groups, 0 for control, 1 for treatment
         """
         
-        p_1 = self.get_propensity(self,X,treatment)
+        p_1 = self.get_propensity(X,treatment)
         p_0 = 1-p_1
         dhat_cs = self.model_tau_c.predict(X)
         dhat_ts = self.model_tau_t.predict(X)
@@ -241,8 +241,8 @@ class Xlearner():
         ite = p_1 * dhat_cs + p_0 * dhat_ts
         # get performance of imputation
         yhat = np.zeros_like(y, dtype=float)
-        yhat[treatment == 0] = self.models_mu_c.predict(X[treatment == 0])
-        yhat[treatment == 1] = self.models_mu_t.predict(X[treatment == 1])
+        yhat[treatment == 0] = self.model_mu_c.predict(X[treatment == 0])
+        yhat[treatment == 1] = self.model_mu_t.predict(X[treatment == 1])
 
         return ite, dhat_ts, dhat_cs, rmse(yhat,y)
         
