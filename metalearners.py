@@ -142,6 +142,7 @@ class Xlearner():
                  control_effect_learner=None,
                  treatment_effect_learner=None,
                  is_regressor = False,
+                 propensity_model = None,
                  alpha=.05):
         
         """Initialize a X-learner.
@@ -218,7 +219,7 @@ class Xlearner():
 
     def get_propensity(self,X,treatment):
         self.propensity_model.fit(X,treatment)
-        self.propensity = self.propensity_model.predict_proba(X)
+        self.propensity = self.propensity_model.predict_proba(X)[:,1]
         return self.propensity
 
     def get_ite(self, X, treatment, y):
@@ -230,7 +231,7 @@ class Xlearner():
             treatment:(np.array or pd.Series) indicating treatment/control groups, 0 for control, 1 for treatment
         """
         
-        p_1 = get_propensity(self,X,treatment)
+        p_1 = self.get_propensity(self,X,treatment)
         p_0 = 1-p_1
         dhat_cs = self.model_tau_c.predict(X)
         dhat_ts = self.model_tau_t.predict(X)
@@ -241,7 +242,7 @@ class Xlearner():
         yhat[treatment == 0] = self.models_mu_c.predict(X[treatment == 0])
         yhat[treatment == 1] = self.models_mu_t.predict(X[treatment == 1])
 
-        return ite, dhat_ts, dhat_cs, rmse(y_hat,y)
+        return ite, dhat_ts, dhat_cs, rmse(yhat,y)
         
     def boostrap_interval():
         return 
