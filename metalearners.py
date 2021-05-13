@@ -8,6 +8,8 @@ from copy import deepcopy
 
 
 def rmse(y_hat,y):
+    if len(np.unique(y)) <3:
+        y_hat = [1 if y>0.5 else 0 for y in y_hat]
     return np.sqrt(np.mean((y_hat-y)**2))
 
 
@@ -204,10 +206,10 @@ class Xlearner():
             d_c = self.models_mu_t.predict(X[treatment == 0]) - y[treatment == 0]
             d_t = y[treatment == 1] - self.models_mu_c.predict(X[treatment == 1])
         else:
-            var_c = (y[treatment == 0] - self.models_mu_c.predict_proba(X[treatment == 0])).var()
-            var_t = (y[treatment == 1] - self.models_mu_t.predict_proba(X[treatment == 1])).var()
-            d_c = self.models_mu_t.predict_proba(X[treatment == 0]) - y[treatment == 0]
-            d_t = y[treatment == 1] - self.models_mu_c.predict_proba(X[treatment == 1])
+            var_c = (y[treatment == 0] - self.models_mu_c.predict_proba(X[treatment == 0])[:,1]).var()
+            var_t = (y[treatment == 1] - self.models_mu_t.predict_proba(X[treatment == 1])[:,1]).var()
+            d_c = self.models_mu_t.predict_proba(X[treatment == 0])[:,1] - y[treatment == 0]
+            d_t = y[treatment == 1] - self.models_mu_c.predict_proba(X[treatment == 1])[:,1]
         
         self.vars_c= var_c
         self.vars_t = var_t
