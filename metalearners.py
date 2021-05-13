@@ -34,8 +34,8 @@ class Slearner():
             y: 1d np.array for outcome observed
             treatment:(np.array or pd.Series) indicating treatment/control groups, 0 for control, 1 for treatment
         """
-        X_netreatment = np.hstack((treatment.reshape((-1,1)), X))
-        self.model.fit(X_netreatment, y)
+        X_new = np.hstack((treatment.reshape((-1,1)), X))
+        self.model.fit(X_new, y)
     
     def get_ite(self, X, treatment, y):
         
@@ -47,18 +47,18 @@ class Slearner():
         """
         
         # set the treatment column to zero (the control group)
-        X_netreatment = np.hstack((np.zeros((X.shape[0], 1)), X))
+        X_new = np.hstack((np.zeros((X.shape[0], 1)), X))
         if self.is_regressor:
-            yhat_cs = model.predict(X_netreatment)
+            yhat_cs = model.predict(X_new)
         else:
-            yhat_cs = model.predict_proba(X_netreatment)
+            yhat_cs = model.predict_proba(X_new)
         
         # set the treatment column to one (the treatment group)
-        X_netreatment[:, 0] = 1
+        X_new[:, 0] = 1
         if self.is_regressor:
-            yhat_ts = model.predict(X_netreatment)
+            yhat_ts = model.predict(X_new)
         else:
-            yhat_ts = model.predict_proba(X_netreatment)
+            yhat_ts = model.predict_proba(X_new)
             
         # get the prediction for evaluation
         yhat = np.zeros_like(y, dtype=float)
