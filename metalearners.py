@@ -21,7 +21,7 @@ class Slearner():
             alpha: a significance level for estimating confidence interval
             is_regressor: base model is a regressor or a classifier
         """
-        self.model = learner
+        self.model = baselearner
         self.alpha = alpha
         self.is_regressor = is_regressor
       
@@ -34,7 +34,7 @@ class Slearner():
             y: 1d np.array for outcome observed
             treatment:(np.array or pd.Series) indicating treatment/control groups, 0 for control, 1 for treatment
         """
-        X_new = np.hstack((treatment.reshape((-1,1)), X))
+        X_new = np.hstack((np.array(treatment).reshape((-1,1)), X))
         self.model.fit(X_new, y)
     
     def get_ite(self, X, treatment, y):
@@ -49,16 +49,16 @@ class Slearner():
         # set the treatment column to zero (the control group)
         X_new = np.hstack((np.zeros((X.shape[0], 1)), X))
         if self.is_regressor:
-            yhat_cs = model.predict(X_new)
+            yhat_cs = self.model.predict(X_new)
         else:
-            yhat_cs = model.predict_proba(X_new)
+            yhat_cs = self.model.predict_proba(X_new)[:,1]
         
         # set the treatment column to one (the treatment group)
         X_new[:, 0] = 1
         if self.is_regressor:
-            yhat_ts = model.predict(X_new)
+            yhat_ts = self.model.predict(X_new)
         else:
-            yhat_ts = model.predict_proba(X_new)
+            yhat_ts = self.model.predict_proba(X_new)[:,1]
             
         # get the prediction for evaluation
         yhat = np.zeros_like(y, dtype=float)
@@ -68,11 +68,12 @@ class Slearner():
         # get the treatment effect
         ite = yhat_ts - yhat_cs
         
-        return ite, yhat_ts, yhat_cs, rmse(y_hat,y)
+        return ite, yhat_ts, yhat_cs, rmse(yhat,y)
     
     def boostrap_interval():
         # todo
-
+        return 
+        
 class Tlearner():
     
     def __init__(self, baseclearner= None,basetlearner= None, alpha=0.05, is_regressor = False):
@@ -99,9 +100,9 @@ class Tlearner():
         """
         X_c, y_c = X[treatment==0],y[treatment==0]
         X_t, y_t = X[treatment==1],y[treatment==1]
-        
-        self.cmodel.fit(X_c, y_c)
-        self.tmodel.fit(X_t, y_t)
+
+        self.cmodel.fit(X = X_c, y = y_c)
+        self.tmodel.fit(X = X_t, y = y_t)
         
     def get_ite(self, X, treatment, y):
         
@@ -112,11 +113,11 @@ class Tlearner():
             treatment:(np.array or pd.Series) indicating treatment/control groups, 0 for control, 1 for treatment
         """
         if self.is_regressor:
-            yhat_cs = cmodel.predict(X)
-            yhat_ts = tmodel.predict(X)
+            yhat_cs = self.cmodel.predict(X)
+            yhat_ts = self.tmodel.predict(X)
         else:
-            yhat_cs = cmodel.predict_proba(X)
-            yhat_ts = tmodel.predict_proba(X)
+            yhat_cs = self.cmodel.predict_proba(X)[:,1]
+            yhat_ts = self.tmodel.predict_proba(X)[:,1]
             
         # get the prediction for evaluation
         yhat = np.zeros_like(y, dtype=float)
@@ -126,10 +127,10 @@ class Tlearner():
         # get the treatment effect
         ite = yhat_ts - yhat_cs
         
-        return ite, yhat_ts, yhat_cs, rmse(y_hat,y)
+        return ite, yhat_ts, yhat_cs, rmse(yhat,y)
         
     def boostrap_interval():
-
+        return 
 
 
 class Xlearner():
@@ -243,7 +244,7 @@ class Xlearner():
         return ite, dhat_ts, dhat_cs, rmse(y_hat,y)
         
     def boostrap_interval():
-
+        return 
 
 if __name__ == '__main__':
     print('Metalearner')
