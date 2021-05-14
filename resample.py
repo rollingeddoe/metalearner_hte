@@ -33,26 +33,18 @@ class resample_from_synthetic_data:
         self.n_sample = n_sample
         
     def get_linear_dist_label(self,x, w):
-        # a linear func to generate label
-        # when 0 < x < 0.8,  return 0, else return 1. 20% of having label = 1 
+        
         generated_num = x 
         if w == 0:
-            if generated_num > 0.8:
-                return 1
-            return 0
+            return 1 + x
         else:
-            if generated_num > 0.5:
-                return 1
-            return 0
+            return 2 + x
         
     def get_complex_dist_label(self,x):
-        # a complex func  abs(x*x*x - x) is a quadratic func when x ∈ (0,1)
-        # < 20 % change of returning 0
+        
         generated_num = np.abs(x*x*x - x) 
         
-        if generated_num > 0.36:
-            return 0
-        return 1
+        return 3 + generated_num
     
     def get_data_with_diff_distribution(self,ratio = 0.2):
         total_size = self.n_sample
@@ -128,21 +120,16 @@ class resample_from_synthetic_data:
         X = []
         Y = []
         for i in range(total_size):
-            while True:
-                ran_num = random.uniform(0,1)
-                if self.get_linear_dist_label(ran_num,0) != self.get_linear_dist_label(ran_num,1):
-                    continue
-                else:
-                    break
+            ran_num = random.uniform(0,1)
             X.append(ran_num)
             Y0.append(self.get_linear_dist_label(ran_num,0))
-            Y1.append(self.get_linear_dist_label(ran_num,1))
+            Y1.append(self.get_linear_dist_label(ran_num,0))
             if i < n_w0:
                 W.append(0)
                 Y.append(self.get_linear_dist_label(ran_num,0))
             else:
                 W.append(1)
-                Y.append(self.get_linear_dist_label(ran_num,1))
+                Y.append(self.get_linear_dist_label(ran_num,0))
         
         df['W'] = W
         df['Y0'] = Y0
