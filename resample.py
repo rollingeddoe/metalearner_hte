@@ -15,14 +15,16 @@ class resample_from_GOTV:
         
     def get_treat_control_equalsize(self, n_sample = 10000):
         # get # treatment = # control 
-        
+        self.d_w1 = self.d_w1.sample(frac=1).reset_index(drop=True)
+        self.d_w0 = self.d_w0.sample(frac=1).reset_index(drop=True)
         return self.d_w0.iloc[:n_sample//2], self.d_w1.iloc[:n_sample//2]
     
     def get_treat_control_diffsize(self, n_sample = 10000, ratio = 0.05):
         # get # treatment << # control 
         n_w1 = int(n_sample*ratio)
         n_w0 = n_sample - n_w1
-        
+        self.d_w1 = self.d_w1.sample(frac=1).reset_index(drop=True)
+        self.d_w0 = self.d_w0.sample(frac=1).reset_index(drop=True)
         return self.d_w0.iloc[:n_w0], self.d_w1.iloc[:n_w1]
         
         
