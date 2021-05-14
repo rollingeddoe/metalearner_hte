@@ -3,6 +3,7 @@ import random
 from scipy import stats
 
 
+
 class synthetic_data():
     
     def __init__(self,
@@ -244,5 +245,6 @@ class synthetic_data():
 
 
 
+        
 if __name__ == '__main__':
     print('synthetic data generator')
