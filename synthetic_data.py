@@ -4,6 +4,7 @@ from scipy import stats
 
 
 
+
 class synthetic_data():
     
     def __init__(self,
