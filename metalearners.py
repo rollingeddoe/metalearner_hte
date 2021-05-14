@@ -6,10 +6,7 @@ from scipy.stats import norm
 from copy import deepcopy
 
 
-
 def rmse(y_hat,y):
-    if len(np.unique(y)) <3:
-        y_hat = [1 if y>0.5 else 0 for y in y_hat]
     return np.sqrt(np.mean((y_hat-y)**2))
 
 
@@ -70,7 +67,7 @@ class Slearner():
         # get the treatment effect
         ite = yhat_ts - yhat_cs
         
-        return ite, yhat_ts, yhat_cs, rmse(yhat,y)
+        return ite, yhat_ts, yhat_cs
     
     def boostrap_interval():
         # todo
@@ -129,7 +126,7 @@ class Tlearner():
         # get the treatment effect
         ite = yhat_ts - yhat_cs
         
-        return ite, yhat_ts, yhat_cs, rmse(yhat,y)
+        return ite, yhat_ts, yhat_cs
         
     def boostrap_interval():
         return 
@@ -244,10 +241,10 @@ class Xlearner():
         yhat[treatment == 0] = self.model_mu_c.predict(X[treatment == 0])
         yhat[treatment == 1] = self.model_mu_t.predict(X[treatment == 1])
 
-        return ite, dhat_ts, dhat_cs, rmse(yhat,y)
+        return ite, dhat_ts, dhat_cs
         
     def boostrap_interval():
-        return 
+        pass
 
 if __name__ == '__main__':
     print('Metalearner')
