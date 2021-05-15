@@ -4,7 +4,6 @@ from scipy import stats
 
 
 
-
 class synthetic_data():
     
     def __init__(self,
@@ -37,7 +36,7 @@ class synthetic_data():
             self.propensity = np.array([e]*X.shape[0])         
         else:
             self.propensity = (1+stats.beta.pdf(X[:,1],2,4))/4
-            treatment = [1 if t > 0.5 else 0 for t in self.propensity]
+            treatment = np.random.binomial(size=self.nsample, n=1, p= self.propensity)
         return treatment,self.propensity
                      
     # we define tw0 distributions referring to the paper
@@ -93,7 +92,7 @@ class synthetic_data():
         
         """
         
-        return np.exp(-12*(X[:,0]-0.5))*np.exp(-12*(X[:,1]-0.5))
+        return 4/((1+np.exp(-12*(X[:,0]-0.5)))*(1+np.exp(-12*(X[:,1]-0.5))))
     
     def get_full_data(self):
         """ get full synthetic data for all 6 simulations
@@ -162,8 +161,8 @@ class synthetic_data():
             
         # SI 3 The Balanced case without confounding - complex nonlinear
         elif self.simulation == 3:
-            y_t = self.get_nonlinear_outcome(X)
-            y_c = -self.get_nonlinear_outcome(X)
+            y_t = 2*self.get_nonlinear_outcome(X)
+            y_c = -2*self.get_nonlinear_outcome(X)
             
             # get treatment
             treatment,propensity = self.get_treatment(X,ex ="constant",e=0.5)
@@ -243,8 +242,6 @@ class synthetic_data():
         
         #return true_ite, full_data
         return  true_ite,  X, y,treatment,propensity
-
-
 
         
 if __name__ == '__main__':
