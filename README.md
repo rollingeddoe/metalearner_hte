@@ -10,7 +10,10 @@ In the extension part we experimented with new confident interval methods based 
 
 
 The direction of the files are as below:
+
 metalearners.py:  The meta-learners class including S, T, X learners
+
 synthetic_data.py: The data generator for simulations with different distributions
+
 simulations.ipynb: Simulations with 6 different distribution, initialization is based on metalearners.py and synthetic_data.py
  
